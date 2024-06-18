@@ -100,15 +100,7 @@ class Scanner {
                 addToken(match('=') ? GREATER_EQUAL : GREATER);
                 break;
             case '/':
-                if (match('/')) {
-                    // A comment goes until the end of the line.
-                    while (peek() != '\n' && !isAtEnd()) {
-                        advance();
-                    }
-                } else {
-                    addToken(SLASH);
-                }
-
+                slash();
                 break;
             case ' ':
             case '\r':
@@ -147,6 +139,37 @@ class Scanner {
         }
 
         addToken(type);
+    }
+
+    private void slash() {
+        if (match('*')) {
+            // A '/* */' comment block goes until end marker ('*/') is reached.
+            while (!isAtEnd() && peek() != '*' && peekNext() != '/') {
+                if (peek() == '\n') {
+                    line++;
+                }
+
+                advance();
+            }
+
+            // Could change to detect whether in REPL
+            // such that this doesn't generate an error
+            // so block comments can be made in the REPL.
+            if (isAtEnd()) {
+                Lox.error(line, "Unterminated block comment!");
+                return;
+            }
+
+            advance();
+            advance();
+        } else if (match('/')) {
+            // A '//' comment goes until the end of the line.
+            while (peek() != '\n' && !isAtEnd()) {
+                advance();
+            }
+        } else {
+            addToken(SLASH);
+        }
     }
 
     private void string() {
