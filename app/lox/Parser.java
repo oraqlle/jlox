@@ -24,7 +24,20 @@ public class Parser {
     }
 
     private Expr expression() {
-        return comma();
+        return ternary();
+    }
+
+    private Expr ternary() {
+        Expr expr = comma();
+
+        if (match(QUESTION_MARK)) {
+            Expr thenBranch = ternary();
+            consume(COLON, "Expect ':' after then branch of ternary expression.");
+            Expr elseBranch = ternary();
+            expr = new Expr.Ternary(expr, thenBranch, elseBranch);
+        }
+
+        return expr;
     }
 
     private Expr comma() {

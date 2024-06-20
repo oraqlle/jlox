@@ -1,12 +1,13 @@
 package app.lox;
 
-import app.lox.Expr.Literal;
-
-import app.lox.Expr.Literal;
-
 class AstPrinter implements Expr.Visitor<String> {
     String print(Expr expr) {
         return expr.accept(this);
+    }
+
+    @Override
+    public String visitTernaryExpr(Expr.Ternary expr) {
+        return parenthesize("?:", expr.condition, expr.thenBranch, expr.elseBranch);
     }
 
     @Override
