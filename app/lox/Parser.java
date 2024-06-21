@@ -57,6 +57,10 @@ public class Parser {
             return printStatement();
         }
 
+        if (match(LEFT_BRACE)) {
+            return new Stmt.Block(block());
+        }
+
         return expressionStatement();
     }
 
@@ -72,30 +76,59 @@ public class Parser {
         return new Stmt.Expression(value); 
     }
 
+    private List<Stmt> block() {
+        List<Stmt> statements = new ArrayList<>();
+
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
+    }
+
     private Expr expression() {
-        return ternary();
+        return comma();
+    }
+
+    private Expr comma() {
+        Expr expr = assignment();
+
+        while (match(COMMA)) {
+            Token operator = previous();
+            Expr right = assignment();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr assignment() {
+        Expr expr = ternary();
+
+        if (match(EQUAL)) {
+            Token equals = previous();
+            Expr value = assignment();
+
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
     }
 
     private Expr ternary() {
-        Expr expr = comma();
+        Expr expr = equality();
 
         if (match(QUESTION_MARK)) {
             Expr thenBranch = ternary();
             consume(COLON, "Expect ':' after then branch of ternary expression.");
             Expr elseBranch = ternary();
             expr = new Expr.Ternary(expr, thenBranch, elseBranch);
-        }
-
-        return expr;
-    }
-
-    private Expr comma() {
-        Expr expr = equality();
-
-        while (match(COMMA)) {
-            Token operator = previous();
-            Expr right = equality();
-            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
