@@ -142,13 +142,37 @@ public class Parser {
     }
 
     private Expr ternary() {
-        Expr expr = equality();
+        Expr expr = or();
 
         if (match(QUESTION_MARK)) {
             Expr thenBranch = ternary();
             consume(COLON, "Expect ':' after then branch of ternary expression.");
             Expr elseBranch = ternary();
             expr = new Expr.Ternary(expr, thenBranch, elseBranch);
+        }
+
+        return expr;
+    }
+
+    private Expr or() {
+        Expr expr = and();
+
+        while (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = equality();
+
+        while (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
         }
 
         return expr;
