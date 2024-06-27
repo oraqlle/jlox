@@ -19,6 +19,7 @@ public class GenerateAst {
             "Assign   : Token name, Expr value",
             "Logical  : Expr left, Token operator, Expr right",
             "Set      : Expr object, Token name, Expr value",
+            "This     : Token keyword",
             "Ternary  : Expr condition, Expr thenBranch, Expr elseBranch",
             "Binary   : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",

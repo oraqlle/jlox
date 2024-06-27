@@ -8,6 +8,7 @@ abstract class Expr {
          R visitAssignExpr(Assign expr);
          R visitLogicalExpr(Logical expr);
          R visitSetExpr(Set expr);
+         R visitThisExpr(This expr);
          R visitTernaryExpr(Ternary expr);
          R visitBinaryExpr(Binary expr);
          R visitGroupingExpr(Grouping expr);
@@ -68,6 +69,20 @@ abstract class Expr {
         final Expr object;
         final Token name;
         final Expr value;
+    }
+
+    static class This extends Expr {
+
+        This(Token keyword) {
+            this.keyword = keyword;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitThisExpr(this);
+        }
+
+        final Token keyword;
     }
 
     static class Ternary extends Expr {
