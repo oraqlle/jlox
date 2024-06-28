@@ -12,7 +12,7 @@ generate_ast:
 	@ java -cp build app.tool.GenerateAst app/lox
 
 # Build jlox
-jlox:
+jlox: generate_ast
 	@ $(MAKE) -f util/jlox.make DIR=. PACKAGE=lox
 
 # Run jlox
