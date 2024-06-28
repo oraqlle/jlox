@@ -19,6 +19,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private enum FunctionType {
         NONE,
         FUNCTION,
+        INITIALIZER,
         METHOD
     }
 
@@ -127,6 +128,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         for (Stmt.Function method : stmt.methods) {
             FunctionType declaration = FunctionType.METHOD;
+
+            if (method.name.lexeme.equals("init")) {
+                declaration = FunctionType.INITIALIZER;
+            }
+
             resolveFunction(method, declaration);
         }
 
@@ -199,6 +205,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         }
 
         if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                Lox.error(stmt.keyword, "Can't return a value from an initializer.");
+            }
+
             resolve(stmt.value);
         }
 
