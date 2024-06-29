@@ -9,7 +9,7 @@ clean:
 # Build GenerateAst tool and run
 generate_ast:
 	@ $(MAKE) -f util/jlox.make DIR=. PACKAGE=tool
-	@ java -cp build app.tool.GenerateAst app/lox
+	@ java -cp build tool.GenerateAst lox
 
 # Build jlox
 jlox: generate_ast

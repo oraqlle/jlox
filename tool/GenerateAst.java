@@ -1,4 +1,4 @@
-package app.tool;
+package tool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -59,7 +59,7 @@ public class GenerateAst {
 
         PrintWriter writer = new PrintWriter(path, "UTF-8");
 
-        writer.println("package app.lox;\n");
+        writer.println("package lox;\n");
         writer.println("import java.util.List;\n");
         writer.println("abstract class " + baseName + " {\n");
 

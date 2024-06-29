@@ -1,11 +1,10 @@
-package app.lox;
+package lox;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static app.lox.TokenType.*;
+import static lox.TokenType.*;
 
 public class Parser {
 
