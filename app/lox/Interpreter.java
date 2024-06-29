@@ -259,7 +259,13 @@ public class Interpreter implements Expr.Visitor<Object>,
         Object object = evaluate(expr.object);
 
         if (object instanceof LoxInstance) {
-            return ((LoxInstance) object).get(expr.name);
+            Object result = ((LoxInstance) object).get(expr.name);
+
+            if (result instanceof LoxFunction && ((LoxFunction) result).isGetter()) {
+                result = ((LoxFunction) result).call(this, null);
+            }
+
+            return result;
         }
 
         throw new RuntimeError(expr.name, "Only instances have properties.");
@@ -356,6 +362,20 @@ public class Interpreter implements Expr.Visitor<Object>,
             environment.define("super", superclass);
         }
 
+        Map<String, LoxFunction> classMethods = new HashMap<>();
+
+        for (Stmt.Function classMethod : stmt.classMethods) {
+            LoxFunction classFunction = new LoxFunction(classMethod, environment, false);
+            classMethods.put(classMethod.name.lexeme, classFunction);
+        }
+
+        LoxClass metaclass = new LoxClass(
+            null,
+            stmt.name.lexeme + "$",
+            null,
+            classMethods
+        );
+
         Map<String, LoxFunction> methods = new HashMap<>();
 
         for (Stmt.Function method : stmt.methods) {
@@ -367,7 +387,12 @@ public class Interpreter implements Expr.Visitor<Object>,
             methods.put(method.name.lexeme, function);
         }
 
-        LoxClass klass = new LoxClass(stmt.name.lexeme, (LoxClass)superclass, methods);
+        LoxClass klass = new LoxClass(
+            metaclass,
+            stmt.name.lexeme,
+            (LoxClass)superclass,
+            methods
+        );
 
         if (superclass != null) {
             environment = environment.enclosing;

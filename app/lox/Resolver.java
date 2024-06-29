@@ -20,7 +20,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         NONE,
         FUNCTION,
         INITIALIZER,
-        METHOD
+        METHOD,
+        CLASS_METHOD
     }
 
     private enum ClassType {
@@ -84,9 +85,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         beginScope();
 
-        for (Token param : function.params) {
-            declare(param);
-            define(param);
+        if (function.params != null) {
+            for (Token param : function.params) {
+                declare(param);
+                define(param);
+            }
         }
 
         resolve(function.body);
@@ -139,15 +142,20 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             scopes.peek().put("super", true);
         }
 
+        for (Stmt.Function classMethod : stmt.classMethods) {
+            beginScope();
+            scopes.peek().put("this", true);
+            resolveFunction(classMethod, FunctionType.CLASS_METHOD);
+            endScope();
+        }
+
         beginScope();
         scopes.peek().put("this", true);
 
         for (Stmt.Function method : stmt.methods) {
-            FunctionType declaration = FunctionType.METHOD;
-
-            if (method.name.lexeme.equals("init")) {
-                declaration = FunctionType.INITIALIZER;
-            }
+            FunctionType declaration = method.name.lexeme.equals("init")
+                                     ? FunctionType.INITIALIZER
+                                     : FunctionType.METHOD;
 
             resolveFunction(method, declaration);
         }
