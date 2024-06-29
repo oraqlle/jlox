@@ -17,6 +17,6 @@ jlox: generate_ast
 
 # Run jlox
 run:
-	@ java -cp build app.lox.Lox
+	@ java -cp build lox.Lox $(SCRIPT)
 
 .PHONY: clean jlox generate_ast run
